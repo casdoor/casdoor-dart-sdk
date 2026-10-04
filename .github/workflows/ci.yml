@@ -26,3 +26,23 @@ jobs:
         if: matrix.sdk == 'stable'
       - run: dart analyze
       - run: dart test
+
+  # bump the version in pubspec.yaml, then tag and release it on GitHub,
+  # the tag triggers publish.yml to publish the package to pub.dev
+  release:
+    needs: test
+    if: github.repository == 'casdoor/casdoor-dart-sdk' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Semantic Release
+        run: npx -p semantic-release@24 -p @semantic-release/exec@6 -p @semantic-release/changelog@6 -p @semantic-release/git@10 semantic-release
+        env:
+          # a personal access token, so that the tag it pushes triggers publish.yml
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

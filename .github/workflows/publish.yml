@@ -1,0 +1,14 @@
+name: Publish to pub.dev
+
+# pub.dev only accepts automated publishing from a tag push, see
+# https://dart.dev/tools/pub/automated-publishing
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  publish:
+    permissions:
+      id-token: write
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
