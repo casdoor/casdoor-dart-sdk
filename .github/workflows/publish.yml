@@ -9,6 +9,19 @@ on:
 
 jobs:
   publish:
+    runs-on: ubuntu-latest
     permissions:
+      # for the OIDC token that setup-dart passes to pub.dev
       id-token: write
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      # the version is only set here and never committed back to the repository
+      - name: Set the version from the tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          sed -i "s/^version: .*/version: $VERSION/" pubspec.yaml
+          printf '## %s\n\nSee https://github.com/%s/releases/tag/%s\n\n' "$VERSION" "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME" | cat - CHANGELOG.md > CHANGELOG.tmp
+          mv CHANGELOG.tmp CHANGELOG.md
+      - run: dart pub get
+      - run: dart pub publish --force

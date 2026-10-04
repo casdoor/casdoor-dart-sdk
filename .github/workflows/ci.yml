@@ -27,8 +27,8 @@ jobs:
       - run: dart analyze
       - run: dart test
 
-  # bump the version in pubspec.yaml, then tag and release it on GitHub,
-  # the tag triggers publish.yml to publish the package to pub.dev
+  # tag and release the next version on GitHub, the tag triggers publish.yml
+  # to publish the package to pub.dev
   release:
     needs: test
     if: github.repository == 'casdoor/casdoor-dart-sdk' && github.event_name == 'push'
@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: 22
       - name: Semantic Release
-        run: npx -p semantic-release@24 -p @semantic-release/exec@6 -p @semantic-release/changelog@6 -p @semantic-release/git@10 semantic-release
+        run: npx semantic-release@24
         env:
           # a personal access token, so that the tag it pushes triggers publish.yml
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
